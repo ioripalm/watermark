@@ -1,34 +1,44 @@
 name: build-watermark-exe
 
 on:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-    build:
-        runs-on: windows-latest
+  build:
+    runs-on: windows-latest
 
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-            - name: Setup Python
-              uses: actions/setup-python@v5
-              with:
-                  python-version: '3.11'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-            - name: Upgrade pip
-              run: python -m pip install --upgrade pip
+      # --- 缓存逻辑开始 ---
+      - name: Cache pip packages
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      # --- 缓存逻辑结束 ---
 
-            - name: Install dependencies
-              run: pip install -r requirements.txt
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
 
-            - name: Install Nuitka
-              run: pip install nuitka
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
 
-            - name: Build exe
-              run: python -m nuitka --onefile --enable-plugin=numpy --include-package=blind_watermark --no-deployment-flag=self-execution watermark.py
-            - name: Upload artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: watermark-exe
-                  path: watermark.exe
+      - name: Build exe
+        run: pyinstaller --onefile --collect-all blind_watermark --collect-all numpy watermark.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: watermark-exe
+          path: dist/watermark.exe
