@@ -26,12 +26,7 @@ jobs:
               run: pip install nuitka
 
             - name: Build exe
-              run: |
-                  python -m nuitka ^
-                      --onefile ^
-                      --enable-plugin=numpy ^
-                      --include-package=blind_watermark ^
-                      watermark.py
+              run: python -m nuitka --onefile --enable-plugin=numpy --include-package=blind_watermark watermark.py
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
