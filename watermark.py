@@ -1,3 +1,7 @@
+import numpy as np
+# 补丁：解决旧库使用过期的 np.int 导致的 AttributeError
+if not hasattr(np, 'int'):
+    np.int = int
 from blind_watermark import WaterMark
 import sys
 
