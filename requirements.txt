@@ -1,4 +1,5 @@
-numpy>=1.17.0
+blind-watermark
+numpy
 opencv-python
-setuptools
 PyWavelets
+scipy
